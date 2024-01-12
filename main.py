@@ -32,15 +32,16 @@ async def SetupAll(update: Update, callback: CallbackContext):
         reply_markup=ReplyKeyboardMarkup(kb)
     )
 
-
 async def web_app_data(update: Update, context: CallbackContext):
     data = json.loads(update.message.web_app_data.data)
+    message = ""
     if data["type"] == "Load":
         LoadedProjects[update.effective_user.id] = data["Project"]
         kb = [
             [KeyboardButton(
                 "Open Menu",
-                web_app=WebAppInfo("https://danial-movahed.github.io/menus/projectloaded.html")
+                web_app=WebAppInfo(
+                    "https://danial-movahed.github.io/menus/projectloaded.html")
             )],
             [KeyboardButton(
                 "Help commands",
@@ -48,11 +49,26 @@ async def web_app_data(update: Update, context: CallbackContext):
                     "https://danial-movahed.github.io/help/commands")
             )]
         ]
-        await update.message.reply_text(
-            f"Loaded project {data['Project']}",
-            reply_markup=ReplyKeyboardMarkup(kb)
-        )
+        message = f"Loaded project {data['Project']}"
+    elif data["type"] == "Unload":
+        LoadedProjects[update.effective_user.id] = ""
+        kb = [
+            [KeyboardButton(
+                "Open Menu",
+                web_app=WebAppInfo("https://danial-movahed.github.io/")
+            )],
+            [KeyboardButton(
+                "Help commands",
+                web_app=WebAppInfo(
+                    "https://danial-movahed.github.io/help/commands")
+            )]
+        ]
+        message = "Unloaded project: " + data["Project"]
 
+    await update.message.reply_text(
+        message,
+        reply_markup=ReplyKeyboardMarkup(kb)
+    )
 
 if __name__ == '__main__':
     application = ApplicationBuilder().token(BOT_TOKEN).build()
