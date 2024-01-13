@@ -32,24 +32,26 @@ async def SetupAll(update: Update, callback: CallbackContext):
         reply_markup=ReplyKeyboardMarkup(kb)
     )
 
+
 async def web_app_data(update: Update, context: CallbackContext):
     data = json.loads(update.message.web_app_data.data)
     message = ""
+    kb = [
+        [KeyboardButton(
+            "Open Dashboard",
+            web_app=WebAppInfo(
+                "https://danial-movahed.github.io/menus/projectloaded.html")
+        )],
+        [KeyboardButton(
+            "Help commands",
+            web_app=WebAppInfo(
+                "https://danial-movahed.github.io/help/commands")
+        )]
+    ]
     if data["type"] == "Load":
         LoadedProjects[update.effective_user.id] = data["Project"]
-        kb = [
-            [KeyboardButton(
-                "Open Menu",
-                web_app=WebAppInfo(
-                    "https://danial-movahed.github.io/menus/projectloaded.html")
-            )],
-            [KeyboardButton(
-                "Help commands",
-                web_app=WebAppInfo(
-                    "https://danial-movahed.github.io/help/commands")
-            )]
-        ]
         message = f"Loaded project {data['Project']}"
+
     elif data["type"] == "Unload":
         LoadedProjects[update.effective_user.id] = ""
         kb = [
@@ -64,6 +66,23 @@ async def web_app_data(update: Update, context: CallbackContext):
             )]
         ]
         message = "Unloaded project: " + data["Project"]
+
+    elif data["type"] == "ConsoleStart":
+        message = data["URL"]
+
+    elif data["type"] == "InfoSet":
+        message = f"Successfully set server info: \nServer Address: {data['Address']}\nServer Port: {data['Port']}"
+        kb = [
+            [KeyboardButton(
+                "Open Menu",
+                web_app=WebAppInfo("https://danial-movahed.github.io/")
+            )],
+            [KeyboardButton(
+                "Help commands",
+                web_app=WebAppInfo(
+                    "https://danial-movahed.github.io/help/commands")
+            )]
+        ]
 
     await update.message.reply_text(
         message,
